@@ -1,0 +1,6 @@
+{
+  "cleanUrls": true,
+  "outputDirectory": "public",
+  "buildCommand": null,
+  "installCommand": null
+}

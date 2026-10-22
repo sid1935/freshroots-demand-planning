@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en" data-theme="auto"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Freshroots Planner</title>
+<style>
+:root{--bg:#eef1f7;--card:#fff;--ink:#141a2a;--mute:#6b7488;--line:#e7eaf2;--soft:#f5f7fb;--blue:#2f5bea;--blue-soft:#e8eefe;--green:#17915c;--green-soft:#e3f6ec;--red:#e0454b;--red-soft:#fdeaea;--amber:#c88a12;--amber-soft:#fdf3dc;--violet:#7a55e0;--violet-soft:#efe9fd;--shadow:0 1px 2px rgba(20,26,42,.04),0 8px 24px rgba(20,26,42,.04)}
+:root[data-theme=dark]{--bg:#0e121b;--card:#161b27;--ink:#e9ecf4;--mute:#8f99ae;--line:#242b3a;--soft:#1b2130;--blue:#6b8cff;--blue-soft:#1d2744;--green:#4cc794;--green-soft:#15281f;--red:#ff7a80;--red-soft:#321a1d;--amber:#e8b64f;--amber-soft:#2e2511;--violet:#a58cff;--violet-soft:#241d3d;--shadow:none}
+@media (prefers-color-scheme:dark){:root[data-theme=auto]{--bg:#0e121b;--card:#161b27;--ink:#e9ecf4;--mute:#8f99ae;--line:#242b3a;--soft:#1b2130;--blue:#6b8cff;--blue-soft:#1d2744;--green:#4cc794;--green-soft:#15281f;--red:#ff7a80;--red-soft:#321a1d;--amber:#e8b64f;--amber-soft:#2e2511;--violet:#a58cff;--violet-soft:#241d3d;--shadow:none}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:13.5px/1.45 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh;gap:14px;padding:14px}
+.side{background:var(--card);border-radius:22px;padding:18px 14px;display:flex;flex-direction:column;box-shadow:var(--shadow);position:sticky;top:14px;height:calc(100vh - 28px)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:2px 8px 18px}
+.logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#2f5bea,#7a55e0);display:grid;place-items:center;color:#fff}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav small{color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:12px 10px 6px}
+.nav button{all:unset;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;color:var(--mute);font-weight:500}
+.nav button:hover{background:var(--soft);color:var(--ink)}
+.nav button.on{background:var(--blue-soft);color:var(--blue);font-weight:600}
+.nav .cnt{margin-left:auto;background:var(--green-soft);color:var(--green);font-size:11px;font-weight:600;padding:1px 7px;border-radius:9px}
+.nav svg,.ico{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.promo{margin-top:auto;border-radius:16px;padding:14px;color:#fff;background:linear-gradient(160deg,#1e2a55,#2f5bea 70%,#7a55e0)}
+.promo b{display:block;margin-bottom:4px}.promo p{margin:0 0 10px;font-size:12px;opacity:.85}
+.promo button{all:unset;cursor:pointer;background:#fff;color:#2f5bea;font-weight:600;font-size:12px;padding:7px 12px;border-radius:9px;display:block;text-align:center}
+.main{min-width:0}
+.top{background:var(--card);border-radius:22px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);margin-bottom:14px}
+.search{flex:1;max-width:340px;display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:12px;padding:8px 12px;color:var(--mute)}
+.search input{all:unset;flex:1;color:var(--ink)}
+.search kbd{font:11px inherit;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:10px;padding:7px 11px;font-weight:500;white-space:nowrap}
+.chip.fest{background:var(--amber-soft);color:var(--amber)}
+.btn{all:unset;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:11px;font-weight:600;background:var(--soft);color:var(--ink)}
+.btn.pri{background:var(--blue);color:#fff}.btn:hover{filter:brightness(.97)}
+.iconbtn{all:unset;cursor:pointer;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--mute)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f6b36b,#e0454b);display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px}
+.head{display:flex;align-items:center;justify-content:space-between;margin:4px 6px 12px;gap:10px;flex-wrap:wrap}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}.head p{margin:2px 0 0;color:var(--mute)}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(4,1fr);margin-bottom:14px}
+.card{background:var(--card);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card h3 span.sub{font-weight:400;color:var(--mute);font-size:12px}
+.kpi .lab{display:flex;justify-content:space-between;color:var(--mute);font-weight:500}
+.kpi .ico-b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center}
+.kpi .val{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:8px 0 4px;display:flex;align-items:baseline;gap:8px}
+.badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:7px;display:inline-flex;align-items:center;gap:3px}
+.b-g{background:var(--green-soft);color:var(--green)}.b-r{background:var(--red-soft);color:var(--red)}.b-b{background:var(--blue-soft);color:var(--blue)}.b-a{background:var(--amber-soft);color:var(--amber)}.b-v{background:var(--violet-soft);color:var(--violet)}.b-n{background:var(--soft);color:var(--mute)}
+.kpi .foot{color:var(--mute);font-size:11.5px}
+.row2{grid-template-columns:1.9fr 1fr;margin-bottom:14px}
+.row3{grid-template-columns:1.5fr 1fr;margin-bottom:14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--mute);font-size:12px;margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+svg text{fill:var(--mute);font-size:10.5px;font-family:inherit}
+.tbl{width:100%;border-collapse:collapse;margin-top:8px}
+.tbl th{font-size:11.5px;color:var(--mute);font-weight:500;text-align:left;padding:8px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}.tbl tr:hover td{background:var(--soft)}
+.n{text-align:right!important;font-variant-numeric:tabular-nums}
+.sku{display:flex;align-items:center;gap:10px}.sku .dot{width:30px;height:30px;border-radius:9px;background:var(--soft);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--mute);flex:none}
+.sku b{display:block;font-weight:600}.sku span{color:var(--mute);font-size:11.5px}
+.tag{display:inline-block;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.t-REORDER_NOW{background:var(--red-soft);color:var(--red)}.t-REORDER_HIGH_DEMAND{background:var(--amber-soft);color:var(--amber)}.t-PAUSE_ORDER{background:var(--blue-soft);color:var(--blue)}
+.t-NEEDS_REVIEW{background:var(--violet-soft);color:var(--violet)}.t-ON_ORDER{background:var(--green-soft);color:var(--green)}.t-NO_ACTION{background:var(--soft);color:var(--mute)}
+.why{color:var(--mute);font-size:12px;max-width:300px}
+.assist{background:linear-gradient(180deg,var(--card),var(--blue-soft))}
+.orb{width:92px;height:92px;border-radius:50%;margin:10px auto 6px;background:radial-gradient(circle at 32% 28%,#a8c0ff,#2f5bea 45%,#1a2c8a 100%);box-shadow:0 18px 30px -8px rgba(47,91,234,.55),inset 0 -8px 16px rgba(10,20,80,.4);animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+.assist ul{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px}
+.assist li{background:var(--card);border-radius:12px;padding:9px 11px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line)}
+.assist li i{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px}
+.note{color:var(--mute);font-size:12px;margin:10px 4px 0}
+.view{display:none}.view.on{display:block}
+.dec button{all:unset;cursor:pointer;padding:5px 10px;border-radius:8px;font-weight:600;font-size:12px;background:var(--soft);margin-right:4px}
+.dec button.p{background:var(--blue);color:#fff}
+.ovr{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.ovr input,.ovr select{font:inherit;color:inherit;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:4px 8px}.ovr input{width:76px}
+.progress{height:6px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:6px}.progress i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.flag{font-size:10.5px;color:var(--mute);background:var(--soft);border-radius:5px;padding:1px 5px;margin-right:3px;display:inline-block;margin-top:3px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.row2,.row3{grid-template-columns:1fr}}
+@media(max-width:820px){.top{flex-wrap:wrap}.kpis{grid-template-columns:1fr 1fr}.app{grid-template-columns:1fr;padding:10px}.side{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:10px;gap:6px}.brand{padding:0 8px 0 4px}.nav{flex-direction:row}.nav small,.promo{display:none}.top .search{display:none}.card{overflow-x:auto}}
+</style></head><body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div class="logo"><svg class="ico" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 3c4 3 6 6 6 9a6 6 0 0 1-12 0c0-3 2-6 6-9z"/></svg></div>Freshroots</div>
+  <nav class="nav" id="nav">
+    <small>Planning</small>
+    <button data-v="overview" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Overview</button>
+    <button data-v="recs"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Recommendations<span class="cnt" id="cnt-recs"></span></button>
+    <button data-v="po"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a1.5 1.5 0 1 0 0-.01M17 19a1.5 1.5 0 1 0 0-.01"/></svg>Purchase orders</button>
+    <small>Insight</small>
+    <button data-v="bt"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Backtest</button>
+  </nav>
+  <div class="promo"><b>Twice-weekly cycle</b><p>Replace the monthly forecast with a refresh every Monday and Thursday.</p><button id="promoBtn">How it works</button></div>
+</aside>
+
+<div class="main">
+  <div class="top">
+    <label class="search"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="Search SKU, product or distributor"><kbd>/</kbd></label>
+    <span class="sp"></span>
+    <span class="chip" id="asof"></span><span class="chip fest" id="festchip" hidden>Festival uplift +25%</span>
+    <button class="btn" id="theme" title="Toggle theme"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    <button class="btn pri" id="export"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Export decisions</button>
+    <div class="avatar">DN</div>
+  </div>
+
+  <section class="view on" id="v-overview">
+    <div class="head"><div><h1>Demand planning</h1><p>Rule-based reorder recommendations for every active SKU</p></div></div>
+    <div class="grid kpis" id="kpis"></div>
+    <div class="grid row2">
+      <div class="card"><h3>Weekly sales volume <span class="sub" id="salesSub"></span></h3><div id="salesChart"></div><div class="legend"><span><i style="background:var(--blue)"></i>Units sold, all SKUs</span><span><i style="background:var(--amber-soft);border:1px solid var(--amber)"></i>Festival month</span></div></div>
+      <div class="card"><h3>Recommended actions</h3><div id="donut"></div></div>
+    </div>
+    <div class="grid row3">
+      <div class="card"><h3>Stock cover vs target <span class="sub">weeks of sales on hand</span></h3><div id="coverChart"></div><div class="legend"><span><i style="background:var(--red)"></i>Below minimum</span><span><i style="background:var(--green)"></i>In band</span><span><i style="background:var(--blue)"></i>Above maximum</span><span><i style="background:var(--line);border:1px solid var(--mute)"></i>Target band</span></div></div>
+      <div class="card assist"><h3>Planning assistant <span class="badge b-b" id="aiBadge">rules-based</span></h3><div class="orb"></div><p id="aiSummary" style="margin:8px 0 0;font-weight:600;text-align:center"></p><ul id="insights"></ul><p class="note" style="margin-top:12px" id="aiNote">Generated from the planning rules and sales data, not from a language model.</p></div>
+    </div>
+    <div class="card"><h3>Fastest movers <span class="sub">last 4 weeks vs 12-week average</span></h3><div style="overflow-x:auto"><table class="tbl" id="movers"></table></div></div>
+  </section>
+
+  <section class="view" id="v-recs">
+    <div class="head"><div><h1>Recommendations</h1><p>Accept the rule's suggestion or override it with a reason</p></div><div style="min-width:220px"><span class="sub" id="decProg" style="color:var(--mute)"></span><div class="progress"><i id="decBar" style="width:0"></i></div></div></div>
+    <div class="card"><div style="overflow-x:auto"><table class="tbl" id="recTbl"></table></div></div>
+  </section>
+
+  <section class="view" id="v-po">
+    <div class="head"><div><h1>Draft purchase orders</h1><p>Built from your accepted and overridden decisions, one order per distributor</p></div></div>
+    <div class="grid" style="grid-template-columns:1fr 1.4fr"><div class="card"><h3>Units by distributor</h3><div id="poChart"></div></div><div class="card"><h3>Order lines</h3><div style="overflow-x:auto"><table class="tbl" id="poTbl"></table></div></div></div>
+  </section>
+
+  <section class="view" id="v-bt">
+    <div class="head"><div><h1>Backtest</h1><p id="btSub"></p></div></div>
+    <div class="grid" style="grid-template-columns:1.3fr 1fr"><div class="card"><h3>Units lost to stockouts <span class="sub">lower is better</span></h3><div id="btChart"></div><div class="legend"><span><i style="background:var(--red)"></i>Monthly review</span><span><i style="background:var(--green)"></i>Weekly review</span></div></div><div class="card"><h3>Fill rate</h3><table class="tbl" id="btTbl"></table></div></div>
+    <p class="note">Directional only: opening stock and lead time are assumed, observed sales stand in for demand, and only a few weeks are tested. Results are in units, not rupees.</p>
+  </section>
+</div></div>
+
+<script>
+const D = __DATA__;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const LABEL = { REORDER_NOW: 'Reorder now', REORDER_HIGH_DEMAND: 'High demand', PAUSE_ORDER: 'Pause order', NEEDS_REVIEW: 'Needs review', ON_ORDER: 'On order', NO_ACTION: 'No action' };
+const COLOR = { REORDER_NOW: 'var(--red)', REORDER_HIGH_DEMAND: 'var(--amber)', PAUSE_ORDER: 'var(--blue)', NEEDS_REVIEW: 'var(--violet)', ON_ORDER: 'var(--green)', NO_ACTION: 'var(--line)' };
+const short = (n) => n.replace('Freshroots ', '');
+const sum = (a) => a.reduce((x, y) => x + y, 0);
+const fmt = (n) => Math.round(n).toLocaleString('en-IN');
+const KEY = 'fr-decisions-' + D.asOf;
+let dec = {}; try { dec = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(dec)); } catch (e) {} };
+let query = '';
+
+/* ---------- derived numbers ---------- */
+const weekly = D.weeks.map((w, i) => sum(D.recs.map((r) => (D.sales[r.sku_id] || [])[i] || 0)));
+const last4 = sum(weekly.slice(-4)), prev4 = sum(weekly.slice(-8, -4));
+const salesDelta = prev4 ? (last4 / prev4 - 1) * 100 : 0;
+const count = (a) => D.recs.filter((r) => r.action === a).length;
+const unitsToOrder = sum(D.recs.map((r) => r.recommended_qty));
+const risk = D.recs.filter((r) => r.flags.includes('STOCKOUT_RISK')).length;
+const over = D.recs.filter((r) => r.flags.includes('OVERSTOCK_RISK')).length;
+const decided = () => Object.keys(dec).length;
+const actionable = D.recs.filter((r) => r.action !== 'NO_ACTION');
+const finalQty = (r) => { const d = dec[r.sku_id]; return !d ? 0 : d.status === 'overridden' ? d.qty : d.status === 'accepted' ? r.recommended_qty : 0; };
+const matches = (r) => !query || (r.sku_id + ' ' + r.name + ' ' + r.distributor + ' ' + r.category).toLowerCase().includes(query);
+
+/* ---------- small svg helpers ---------- */
+const spark = (vals, color) => {
+  if (!vals.length) return '';
+  const w = 84, h = 26, mn = Math.min(...vals), mx = Math.max(...vals), span = mx - mn || 1;
+  const pts = vals.map((v, i) => [(i / (vals.length - 1)) * (w - 4) + 2, h - 3 - ((v - mn) / span) * (h - 6)]);
+  return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '"><polyline fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" points="' + pts.map((p) => p.join(',')).join(' ') + '"/><circle cx="' + pts.at(-1)[0] + '" cy="' + pts.at(-1)[1] + '" r="2.4" fill="' + color + '"/></svg>';
+};
+const delta = (v, invert) => { const good = invert ? v < 0 : v >= 0; return '<span class="badge ' + (good ? 'b-g' : 'b-r') + '">' + (v >= 0 ? '▲' : '▼') + ' ' + Math.abs(v).toFixed(1) + '%</span>'; };
+const ICON = {
+  box: '<svg class="ico" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg>',
+  alert: '<svg class="ico" viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></svg>',
+  stack: '<svg class="ico" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg>',
+  trend: '<svg class="ico" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>',
+  check: '<svg class="ico" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>',
+};
+
+/* ---------- KPI cards ---------- */
+function kpis() {
+  const card = (lab, ico, tone, val, badge, foot) => '<div class="card kpi"><div class="lab">' + lab + '<span class="ico-b ' + tone + '">' + ico + '</span></div><div class="val">' + val + badge + '</div><div class="foot">' + foot + '</div></div>';
+  $('kpis').innerHTML =
+    card('Stockout risk', ICON.alert, 'b-r', risk, '<span class="badge b-r">' + Math.round((risk / D.recs.length) * 100) + '% of SKUs</span>', 'below minimum weeks of cover') +
+    card('Overstock risk', ICON.stack, 'b-b', over, '<span class="badge b-b">' + Math.round((over / D.recs.length) * 100) + '% of SKUs</span>', 'above maximum cover, pause ordering') +
+    card('Units to order', ICON.box, 'b-v', fmt(unitsToOrder), '<span class="badge b-n">' + (count('REORDER_NOW') + count('REORDER_HIGH_DEMAND')) + ' SKUs</span>', 'before planner overrides') +
+    card('Sales, last 4 weeks', ICON.trend, 'b-g', fmt(last4), delta(salesDelta), 'vs ' + fmt(prev4) + ' in the 4 weeks before');
+}
+
+/* ---------- charts ---------- */
+function salesChart() {
+  const W = 640, H = 230, L = 44, R = 12, T = 12, B = 26, n = weekly.length;
+  const mx = Math.ceil(Math.max(...weekly) / 500) * 500 || 1, mn = 0;
+  const x = (i) => L + (i / (n - 1)) * (W - L - R), y = (v) => T + (1 - (v - mn) / (mx - mn)) * (H - T - B);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Weekly units sold">';
+  s += '<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--blue)" stop-opacity=".28"/><stop offset="1" stop-color="var(--blue)" stop-opacity="0"/></linearGradient></defs>';
+  D.weeks.forEach((w, i) => { if (w.festival) s += '<rect x="' + (x(i) - (W - L - R) / (n - 1) / 2) + '" y="' + T + '" width="' + (W - L - R) / (n - 1) + '" height="' + (H - T - B) + '" fill="var(--amber-soft)"/>'; });
+  for (let k = 0; k <= 4; k++) { const v = (mx / 4) * k; s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/><text x="' + (L - 8) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + fmt(v) + '</text>'; }
+  const pts = weekly.map((v, i) => [x(i), y(v)]);
+  s += '<path d="M' + pts.map((p) => p.join(',')).join('L') + 'L' + x(n - 1) + ',' + y(0) + 'L' + x(0) + ',' + y(0) + 'Z" fill="url(#ga)"/>';
+  s += '<polyline fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" points="' + pts.map((p) => p.join(',')).join(' ') + '"/>';
+  pts.forEach((p, i) => { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.4" fill="var(--card)" stroke="var(--blue)" stroke-width="2"><title>' + D.weeks[i].label + ': ' + fmt(weekly[i]) + ' units</title></circle>'; if (i % 3 === 0 || i === n - 1) s += '<text x="' + p[0] + '" y="' + (H - 6) + '" text-anchor="middle">' + D.weeks[i].label.replace('2026-', '') + '</text>'; });
+  $('salesChart').innerHTML = s + '</svg>';
+  $('salesSub').textContent = D.weeks[0].label + ' to ' + D.weeks.at(-1).label;
+}
+
+function donut() {
+  const order = ['REORDER_NOW', 'REORDER_HIGH_DEMAND', 'PAUSE_ORDER', 'NEEDS_REVIEW', 'ON_ORDER', 'NO_ACTION'];
+  const total = D.recs.length, R = 54, C = 2 * Math.PI * R;
+  let off = 0, s = '<svg viewBox="0 0 150 150" width="150" style="display:block;margin:12px auto 4px"><circle cx="75" cy="75" r="' + R + '" fill="none" stroke="var(--soft)" stroke-width="16"/>';
+  order.forEach((a) => { const c = count(a); if (!c) return; const len = (c / total) * C; s += '<circle cx="75" cy="75" r="' + R + '" fill="none" stroke="' + COLOR[a] + '" stroke-width="16" stroke-dasharray="' + Math.max(len - 2, 0) + ' ' + C + '" stroke-dashoffset="' + -off + '" transform="rotate(-90 75 75)"><title>' + LABEL[a] + ': ' + c + '</title></circle>'; off += len; });
+  s += '<text x="75" y="76" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ink)">' + total + '</text><text x="75" y="92" text-anchor="middle">SKUs</text></svg>';
+  s += '<div style="display:flex;flex-direction:column;gap:7px;margin-top:8px">' + order.map((a) => '<div style="display:flex;align-items:center;gap:8px"><i style="width:9px;height:9px;border-radius:3px;background:' + COLOR[a] + (a === 'NO_ACTION' ? ';border:1px solid var(--mute)' : '') + '"></i>' + LABEL[a] + '<b style="margin-left:auto">' + count(a) + '</b></div>').join('') + '</div>';
+  $('donut').innerHTML = s;
+}
+
+function coverChart() {
+  const rows = D.recs.filter((r) => r.cover_weeks != null).sort((a, b) => a.cover_weeks - b.cover_weeks);
+  const W = 560, rh = 26, L = 112, R = 24, T = 6, H = T + rows.length * rh + 22, mx = Math.max(16, ...rows.map((r) => r.cover_weeks)) + 1;
+  const x = (v) => L + (v / mx) * (W - L - R);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Weeks of cover per SKU">';
+  for (let v = 0; v <= mx; v += 4) s += '<line x1="' + x(v) + '" x2="' + x(v) + '" y1="' + T + '" y2="' + (H - 18) + '" stroke="var(--line)"/><text x="' + x(v) + '" y="' + (H - 4) + '" text-anchor="middle">' + v + 'w</text>';
+  rows.forEach((r, i) => {
+    const y = T + i * rh, col = r.cover_weeks < r.min_cover ? 'var(--red)' : r.cover_weeks > r.max_cover ? 'var(--blue)' : 'var(--green)';
+    s += '<text x="' + (L - 8) + '" y="' + (y + 16) + '" text-anchor="end" style="fill:var(--ink)">' + esc(short(r.name).slice(0, 17)) + '</text>';
+    s += '<rect x="' + x(r.min_cover) + '" y="' + (y + 3) + '" width="' + (x(r.max_cover) - x(r.min_cover)) + '" height="' + (rh - 6) + '" rx="6" fill="var(--soft)" stroke="var(--mute)" stroke-opacity=".35"/>';
+    s += '<rect x="' + L + '" y="' + (y + 8) + '" width="' + Math.max(2, x(r.cover_weeks) - L) + '" height="' + (rh - 16) + '" rx="4" fill="' + col + '"><title>' + esc(short(r.name)) + ': ' + r.cover_weeks + 'w (band ' + r.min_cover + '-' + r.max_cover + 'w)</title></rect>';
+    s += '<text x="' + (x(r.cover_weeks) + 6) + '" y="' + (y + 17) + '" style="fill:var(--ink);font-weight:600">' + r.cover_weeks + '</text>';
+  });
+  $('coverChart').innerHTML = s + '</svg>';
+}
+
+function insights() {
+  if (D.llm) {
+    const tone = { urgent: 'var(--red)', watch: 'var(--amber)', info: 'var(--blue)' };
+    $('aiBadge').textContent = 'AI · ' + D.llm.model;
+    $('aiSummary').textContent = D.llm.summary;
+    $('aiNote').textContent = 'Written by a language model from the rule outputs. It explains; every number and quantity is computed by the rules.';
+    $('insights').innerHTML = D.llm.bullets.map((b) => '<li><i style="background:' + tone[b.tone] + '"></i><span>' + (b.sku_id ? '<b>' + esc(b.sku_id) + '</b> ' : '') + esc(b.text) + '</span></li>').join('');
+    return;
+  }
+  const out = [];
+  const worst = D.recs.filter((r) => r.action === 'REORDER_NOW').sort((a, b) => a.cover_weeks / a.min_cover - b.cover_weeks / b.min_cover)[0];
+  if (worst) out.push(['var(--red)', '<b>' + esc(short(worst.name)) + '</b> is the most urgent: ' + worst.cover_weeks + ' weeks of cover against a ' + worst.min_cover + '-week minimum. Order ' + fmt(worst.recommended_qty) + ' units.']);
+  const near = D.recs.filter((r) => r.action === 'PAUSE_ORDER' && r.cover_weeks <= r.max_cover * 1.1);
+  near.forEach((r) => out.push(['var(--amber)', '<b>' + esc(short(r.name)) + '</b> is only just over its ' + r.max_cover + '-week limit (' + r.cover_weeks + 'w) and demand is rising ' + r.spike_pct + '%. Worth a human look before pausing.']));
+  const big = D.recs.filter((r) => r.action === 'PAUSE_ORDER' && r.cover_weeks > r.max_cover * 1.1).sort((a, b) => b.cover_weeks - a.cover_weeks)[0];
+  if (big) out.push(['var(--blue)', '<b>' + esc(short(big.name)) + '</b> holds ' + big.cover_weeks + ' weeks of stock. Hold orders until it falls below ' + big.max_cover + '.']);
+  const hot = D.recs.slice().sort((a, b) => (b.spike_pct || 0) - (a.spike_pct || 0))[0];
+  if (hot && hot.spike_pct > 10) out.push(['var(--green)', 'Fastest riser: <b>' + esc(short(hot.name)) + '</b>, up ' + hot.spike_pct + '% over its 12-week average.']);
+  if (D.festival) out.push(['var(--violet)', 'Festival month: the 25% uplift is applied to every cover calculation.']);
+  $('insights').innerHTML = out.slice(0, 5).map((o) => '<li><i style="background:' + o[0] + '"></i><span>' + o[1] + '</span></li>').join('');
+}
+
+function movers() {
+  const rows = D.recs.slice().sort((a, b) => (b.spike_pct || 0) - (a.spike_pct || 0)).slice(0, 7);
+  $('movers').innerHTML = '<thead><tr><th>SKU</th><th>Trend</th><th class="n">Avg / week</th><th class="n">Last 4w</th><th class="n">Change</th><th class="n">Cover</th><th>Action</th></tr></thead><tbody>' + rows.map((r) =>
+    '<tr><td><div class="sku"><div class="dot">' + r.sku_id.slice(-3) + '</div><div><b>' + esc(short(r.name)) + '</b><span>' + esc(r.distributor) + '</span></div></div></td><td>' + spark(D.sales[r.sku_id] || [], (r.spike_pct || 0) >= 0 ? 'var(--green)' : 'var(--red)') + '</td><td class="n">' + fmt(r.avg_weekly_12w) + '</td><td class="n">' + fmt(r.recent_avg_4w) + '</td><td class="n">' + delta(r.spike_pct || 0) + '</td><td class="n">' + r.cover_weeks + 'w</td><td><span class="tag t-' + r.action + '">' + LABEL[r.action] + '</span></td></tr>').join('') + '</tbody>';
+}
+
+/* ---------- recommendations table with decisions ---------- */
+function recs() {
+  const rows = D.recs.filter(matches);
+  $('cnt-recs').textContent = actionable.length;
+  $('decProg').textContent = decided() + ' of ' + actionable.length + ' actionable SKUs decided';
+  $('decBar').style.width = (actionable.length ? (decided() / actionable.length) * 100 : 0) + '%';
+  $('recTbl').innerHTML = '<thead><tr><th>SKU</th><th>Trend</th><th>Action</th><th class="n">Qty</th><th class="n">Cover</th><th>Why</th><th>Planner decision</th></tr></thead><tbody>' + (rows.map((r) => {
+    const d = dec[r.sku_id], flags = r.flags.map((f) => '<span class="flag">' + esc(f) + '</span>').join('');
+    let cell = '<span style="color:var(--mute)">No action needed</span>';
+    if (d) cell = '<b>' + (d.status === 'accepted' ? 'Accepted' : 'Overridden to ' + d.qty) + '</b>' + (d.reason ? '<div class="why">' + esc(d.reason) + '</div>' : '') + ' <div class="dec"><button data-undo="' + r.sku_id + '">Undo</button></div>';
+    else if (r.action !== 'NO_ACTION') cell = '<div class="dec"><button class="p" data-acc="' + r.sku_id + '">Accept</button><button data-ovr="' + r.sku_id + '">Override</button></div><div id="o-' + r.sku_id + '"></div>';
+    return '<tr><td><div class="sku"><div class="dot">' + r.sku_id.slice(-3) + '</div><div><b>' + esc(short(r.name)) + '</b><span>' + esc(r.distributor) + (r.perishable ? ' · perishable' : '') + '</span></div></div></td><td>' + spark(D.sales[r.sku_id] || [], 'var(--blue)') + '</td><td><span class="tag t-' + r.action + '">' + LABEL[r.action] + '</span></td><td class="n">' + (r.recommended_qty ? fmt(r.recommended_qty) : '–') + '</td><td class="n">' + (r.cover_weeks ?? '–') + 'w</td><td><div class="why">' + esc(r.reason) + '</div>' + flags + (D.llm && D.llm.sku_notes[r.sku_id] ? '<div class="why" style="margin-top:5px;color:var(--violet)"><b>AI check:</b> ' + esc(D.llm.sku_notes[r.sku_id]) + '</div>' : '') + '</td><td>' + cell + '</td></tr>';
+  }).join('') || '<tr><td colspan="7" class="why">No SKUs match your search.</td></tr>') + '</tbody>';
+}
+
+/* ---------- purchase orders ---------- */
+function po() {
+  const by = {}, lines = [];
+  for (const r of D.recs) { const q = finalQty(r); if (q > 0) { (by[r.distributor] ||= { lines: 0, units: 0 }).lines++; by[r.distributor].units += q; lines.push([r, q]); } }
+  const names = Object.keys(by).sort();
+  if (!names.length) { $('poChart').innerHTML = '<p class="note">Accept or override recommendations to build the orders.</p>'; $('poTbl').innerHTML = ''; return; }
+  const mx = Math.max(...names.map((n) => by[n].units)), W = 440, rh = 40;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + names.length * rh + '" width="100%">';
+  names.forEach((n, i) => { const y = i * rh, w = (by[n].units / mx) * 250; s += '<text x="0" y="' + (y + 16) + '" style="fill:var(--ink);font-weight:600">' + esc(n) + '</text><rect x="0" y="' + (y + 22) + '" width="' + w + '" height="10" rx="5" fill="var(--blue)"/><text x="' + (w + 8) + '" y="' + (y + 31) + '" style="fill:var(--ink)">' + fmt(by[n].units) + ' units · ' + by[n].lines + ' lines</text>'; });
+  $('poChart').innerHTML = s + '</svg>';
+  $('poTbl').innerHTML = '<thead><tr><th>Distributor</th><th>SKU</th><th class="n">Qty</th></tr></thead><tbody>' + lines.sort((a, b) => a[0].distributor.localeCompare(b[0].distributor)).map(([r, q]) => '<tr><td>' + esc(r.distributor) + '</td><td>' + esc(short(r.name)) + '</td><td class="n">' + fmt(q) + '</td></tr>').join('') + '</tbody>';
+}
+
+/* ---------- backtest ---------- */
+function bt() {
+  const b = D.backtest;
+  if (!b) { $('btSub').textContent = 'Run npm run backtest to include results.'; return; }
+  $('btSub').textContent = b.window + ' (' + b.weeks + ' weeks). Same rules; monthly decides every 4 weeks on data ' + b.lag + ' weeks old.';
+  const W = 460, H = 240, L = 40, T = 14, B = 28, mx = Math.ceil(Math.max(...b.rows.flatMap((r) => [r.m.lostUnits, r.w.lostUnits])) / 250) * 250 || 250;
+  const y = (v) => T + (1 - v / mx) * (H - T - B), gw = (W - L) / b.rows.length;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%">';
+  for (let k = 0; k <= 4; k++) { const v = (mx / 4) * k; s += '<line x1="' + L + '" x2="' + W + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/><text x="' + (L - 6) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + fmt(v) + '</text>'; }
+  b.rows.forEach((r, i) => { const gx = L + i * gw + gw / 2; [[r.m.lostUnits, 'var(--red)', -26], [r.w.lostUnits, 'var(--green)', 4]].forEach(([v, c, dx]) => { s += '<rect x="' + (gx + dx) + '" y="' + y(v) + '" width="22" height="' + Math.max(1, y(0) - y(v)) + '" rx="5" fill="' + c + '"><title>' + fmt(v) + ' units</title></rect><text x="' + (gx + dx + 11) + '" y="' + (y(v) - 5) + '" text-anchor="middle" style="fill:var(--ink);font-weight:600">' + fmt(v) + '</text>'; }); s += '<text x="' + gx + '" y="' + (H - 8) + '" text-anchor="middle">' + r.lead + '-week lead time</text>'; });
+  $('btChart').innerHTML = s + '</svg>';
+  const pct = (t) => (100 * t.soldUnits / (t.soldUnits + t.lostUnits));
+  $('btTbl').innerHTML = '<thead><tr><th>Lead time</th><th class="n">Monthly</th><th class="n">Weekly</th></tr></thead><tbody>' + b.rows.map((r) => '<tr><td>' + r.lead + ' wk</td><td class="n"><span class="badge b-r">' + pct(r.m).toFixed(1) + '%</span></td><td class="n"><span class="badge b-g">' + pct(r.w).toFixed(1) + '%</span></td></tr>').join('') + '</tbody>';
+}
+
+/* ---------- wiring ---------- */
+function render() { recs(); po(); }
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button'); if (!t) return;
+  const d = t.dataset;
+  if (d.v) { document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === 'v-' + d.v)); document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b === t)); window.scrollTo({ top: 0 }); return; }
+  if (d.acc) { dec[d.acc] = { status: 'accepted', at: new Date().toISOString() }; save(); render(); }
+  else if (d.undo) { delete dec[d.undo]; save(); render(); }
+  else if (d.ovr) {
+    const r = D.recs.find((x) => x.sku_id === d.ovr);
+    $('o-' + r.sku_id).innerHTML = '<div class="ovr"><input type="number" min="0" id="q-' + r.sku_id + '" value="' + r.recommended_qty + '" aria-label="Quantity"><select id="w-' + r.sku_id + '"><option>New launch</option><option>Distributor behaviour</option><option>Market event / competitor</option><option>Promotion planned</option><option>Data looks wrong</option><option>Other</option></select><button class="p" data-sv="' + r.sku_id + '">Save</button></div>';
+  } else if (d.sv) { dec[d.sv] = { status: 'overridden', qty: Math.max(0, +$('q-' + d.sv).value || 0), reason: $('w-' + d.sv).value, at: new Date().toISOString() }; save(); render(); }
+});
+$('promoBtn').onclick = () => alert('Today the forecast runs once a month on data that is 3-4 weeks old. With the data prep automated, the same rules can run every Monday and Thursday. The backtest shows what that is worth.');
+$('q').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); if (query) document.querySelector('[data-v=recs]').click(); recs(); });
+document.addEventListener('keydown', (e) => { if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('q').focus(); } });
+$('theme').onclick = () => { const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue('--bg').trim() === '#0e121b'; r.dataset.theme = dark ? 'light' : 'dark'; };
+$('export').onclick = () => {
+  const lines = ['sku_id,recommended_action,recommended_qty,decision,final_qty,override_reason,decided_at'];
+  for (const r of D.recs) { const d = dec[r.sku_id]; if (d) lines.push([r.sku_id, r.action, r.recommended_qty, d.status, finalQty(r), d.reason || '', d.at].join(',')); }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' })); a.download = 'decisions-' + D.asOf + '.csv'; a.click();
+};
+$('asof').textContent = 'As of ' + D.asOf; $('festchip').hidden = !D.festival;
+kpis(); salesChart(); donut(); coverChart(); insights(); movers(); bt(); render();
+</script></body></html>

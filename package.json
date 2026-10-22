@@ -1,0 +1,15 @@
+{
+  "name": "freshroots-demand-planning",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run": "node src/run.js",
+    "backtest": "node src/backtest.js",
+    "report": "node src/report.js",
+    "explain": "node src/explain.js",
+    "all:ai": "node src/run.js && node src/backtest.js && node src/explain.js && node src/report.js",
+    "all":"node src/run.js && node src/backtest.js && node src/report.js",
+    "test": "node --test test/*.test.js"
+  }
+}
