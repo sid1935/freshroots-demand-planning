@@ -117,7 +117,7 @@ svg text{fill:var(--mute);font-size:10.5px;font-family:inherit}
   </section>
 
   <section class="view" id="v-recs">
-    <div class="head"><div><h1>Recommendations</h1><p>Accept the rule's suggestion or override it with a reason</p></div><div style="min-width:220px"><span class="sub" id="decProg" style="color:var(--mute)"></span><div class="progress"><i id="decBar" style="width:0"></i></div></div></div>
+    <div class="head"><div><h1>Recommendations</h1><p>Accept the rule's suggestion or override it with a reason</p></div><div style="min-width:220px"><span class="sub" id="decProg" style="color:var(--mute)"></span> <span id="syncState" class="badge b-n"></span><div class="progress"><i id="decBar" style="width:0"></i></div></div></div>
     <div class="card"><div style="overflow-x:auto"><table class="tbl" id="recTbl"></table></div></div>
   </section>
 
@@ -146,6 +146,38 @@ const KEY = 'fr-decisions-' + D.asOf;
 let dec = {}; try { dec = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(dec)); } catch (e) {} };
 let query = '';
+
+/* ---------- shared storage (Supabase via /api/decisions); falls back to this browser ---------- */
+let pass = ''; try { pass = localStorage.getItem('fr-pass') || ''; } catch (e) {}
+let remote = false;
+const setSync = (ok, msg) => { const el = $('syncState'); el.textContent = msg || (ok ? 'Synced to shared storage' : 'Saved in this browser only'); el.className = 'badge ' + (ok ? 'b-g' : 'b-n'); };
+async function api(method, qs, body) {
+  const r = await fetch('/api/decisions' + qs, { method, headers: { 'content-type': 'application/json', 'x-passcode': pass }, body: body && JSON.stringify(body) });
+  if (r.status === 401) {
+    const p = prompt('Planner passcode'); if (!p) throw new Error('passcode');
+    pass = p; try { localStorage.setItem('fr-pass', p); } catch (e) {}
+    return api(method, qs, body);
+  }
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+async function loadRemote() {
+  if (!location.protocol.startsWith('http')) return setSync(false);
+  try {
+    const rows = await api('GET', '?as_of=' + D.asOf);
+    dec = {};
+    rows.forEach((x) => { dec[x.sku_id] = { status: x.status, qty: x.qty, reason: x.reason || '', at: x.decided_at }; });
+    remote = true; save(); render(); setSync(true);
+  } catch (e) { setSync(false); }
+}
+function push(id) {
+  save(); render();
+  if (!remote) return;
+  const d = dec[id];
+  (d ? api('POST', '', { as_of: D.asOf, sku_id: id, status: d.status, qty: d.status === 'overridden' ? d.qty : null, reason: d.reason || null })
+     : api('DELETE', '?as_of=' + D.asOf + '&sku_id=' + encodeURIComponent(id)))
+    .then(() => setSync(true)).catch(() => setSync(false, 'Could not reach shared storage; saved in this browser'));
+}
 
 /* ---------- derived numbers ---------- */
 const weekly = D.weeks.map((w, i) => sum(D.recs.map((r) => (D.sales[r.sku_id] || [])[i] || 0)));
@@ -306,12 +338,12 @@ document.addEventListener('click', (e) => {
   const t = e.target.closest('button'); if (!t) return;
   const d = t.dataset;
   if (d.v) { document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === 'v-' + d.v)); document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b === t)); window.scrollTo({ top: 0 }); return; }
-  if (d.acc) { dec[d.acc] = { status: 'accepted', at: new Date().toISOString() }; save(); render(); }
-  else if (d.undo) { delete dec[d.undo]; save(); render(); }
+  if (d.acc) { dec[d.acc] = { status: 'accepted', at: new Date().toISOString() }; push(d.acc); }
+  else if (d.undo) { delete dec[d.undo]; push(d.undo); }
   else if (d.ovr) {
     const r = D.recs.find((x) => x.sku_id === d.ovr);
     $('o-' + r.sku_id).innerHTML = '<div class="ovr"><input type="number" min="0" id="q-' + r.sku_id + '" value="' + r.recommended_qty + '" aria-label="Quantity"><select id="w-' + r.sku_id + '"><option>New launch</option><option>Distributor behaviour</option><option>Market event / competitor</option><option>Promotion planned</option><option>Data looks wrong</option><option>Other</option></select><button class="p" data-sv="' + r.sku_id + '">Save</button></div>';
-  } else if (d.sv) { dec[d.sv] = { status: 'overridden', qty: Math.max(0, +$('q-' + d.sv).value || 0), reason: $('w-' + d.sv).value, at: new Date().toISOString() }; save(); render(); }
+  } else if (d.sv) { dec[d.sv] = { status: 'overridden', qty: Math.max(0, +$('q-' + d.sv).value || 0), reason: $('w-' + d.sv).value, at: new Date().toISOString() }; push(d.sv); }
 });
 $('promoBtn').onclick = () => alert('Today the forecast runs once a month on data that is 3-4 weeks old. With the data prep automated, the same rules can run every Monday and Thursday. The backtest shows what that is worth.');
 $('q').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); if (query) document.querySelector('[data-v=recs]').click(); recs(); });
@@ -323,5 +355,5 @@ $('export').onclick = () => {
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' })); a.download = 'decisions-' + D.asOf + '.csv'; a.click();
 };
 $('asof').textContent = 'As of ' + D.asOf; $('festchip').hidden = !D.festival;
-kpis(); salesChart(); donut(); coverChart(); insights(); movers(); bt(); render();
+kpis(); salesChart(); donut(); coverChart(); insights(); movers(); bt(); render(); setSync(false); loadRemote();
 </script></body></html>
