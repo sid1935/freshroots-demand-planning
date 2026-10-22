@@ -68,3 +68,7 @@ Directional, not a savings forecast. Limits: opening stock and lead time are ass
 2. Use the override log to find recurring patterns and turn them into rules.
 3. LLM layer for the review queue only (new launches, rule conflicts): plain-language summaries and analogue-SKU suggestions, always shown as suggestions.
 4. Alert the named planner when a SKU flips to stockout risk between runs.
+
+## Shared storage (Supabase)
+
+Planner decisions are saved to Supabase through `api/decisions.js` so they are shared and persistent. Run `supabase/schema.sql` once in the SQL editor, then set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and (recommended) `PLANNER_PASSCODE` as Vercel environment variables. The key never reaches the browser; with a passcode set, the dashboard asks for it once per browser. `npm run sync` saves each run's recommendations to the `recommendation_runs` table. Without the variables the dashboard falls back to browser storage.
