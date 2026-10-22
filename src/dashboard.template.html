@@ -69,6 +69,15 @@ svg text{fill:var(--mute);font-size:10.5px;font-family:inherit}
 .assist li{background:var(--card);border-radius:12px;padding:9px 11px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line)}
 .assist li i{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px}
 .note{color:var(--mute);font-size:12px;margin:10px 4px 0}
+.click{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.click:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,26,42,.12)}
+.click:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.kpi .go{opacity:0;transition:opacity .15s;color:var(--blue);font-size:11.5px;font-weight:600;margin-top:6px}
+.kpi.click:hover .go,.kpi.click:focus-visible .go{opacity:1}
+tr.click:hover td{background:var(--blue-soft)}
+.legrow{border-radius:8px;padding:4px 6px;margin:-4px -6px}.legrow:hover{background:var(--soft);transform:none;box-shadow:none}
+.fchip{display:none;align-items:center;gap:6px;background:var(--blue-soft);color:var(--blue);font-weight:600;border-radius:10px;padding:5px 6px 5px 11px}
+.fchip.on{display:inline-flex}.fchip button{all:unset;cursor:pointer;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--card)}
 .view{display:none}.view.on{display:block}
 .dec button{all:unset;cursor:pointer;padding:5px 10px;border-radius:8px;font-weight:600;font-size:12px;background:var(--soft);margin-right:4px}
 .dec button.p{background:var(--blue);color:#fff}
@@ -117,7 +126,7 @@ svg text{fill:var(--mute);font-size:10.5px;font-family:inherit}
   </section>
 
   <section class="view" id="v-recs">
-    <div class="head"><div><h1>Recommendations</h1><p>Accept the rule's suggestion or override it with a reason</p></div><div style="min-width:220px"><span class="sub" id="decProg" style="color:var(--mute)"></span> <span id="syncState" class="badge b-n"></span><div class="progress"><i id="decBar" style="width:0"></i></div></div></div>
+    <div class="head"><div><h1>Recommendations</h1><p>Accept the rule's suggestion or override it with a reason</p></div><div style="min-width:220px"><span class="sub" id="decProg" style="color:var(--mute)"></span> <span id="syncState" class="badge b-n"></span> <span id="fchip" class="fchip"><span id="flabel"></span><button data-clear title="Clear filter" aria-label="Clear filter">×</button></span><div class="progress"><i id="decBar" style="width:0"></i></div></div></div>
     <div class="card"><div style="overflow-x:auto"><table class="tbl" id="recTbl"></table></div></div>
   </section>
 
@@ -190,7 +199,15 @@ const over = D.recs.filter((r) => r.flags.includes('OVERSTOCK_RISK')).length;
 const decided = () => Object.keys(dec).length;
 const actionable = D.recs.filter((r) => r.action !== 'NO_ACTION');
 const finalQty = (r) => { const d = dec[r.sku_id]; return !d ? 0 : d.status === 'overridden' ? d.qty : d.status === 'accepted' ? r.recommended_qty : 0; };
-const matches = (r) => !query || (r.sku_id + ' ' + r.name + ' ' + r.distributor + ' ' + r.category).toLowerCase().includes(query);
+const FILTERS = {
+  stockout: ['Stockout risk', (r) => r.flags.includes('STOCKOUT_RISK')],
+  overstock: ['Overstock risk', (r) => r.flags.includes('OVERSTOCK_RISK')],
+  order: ['Units to order', (r) => r.recommended_qty > 0],
+};
+let filter = null; // key like 'stockout', 'action:REORDER_NOW' or 'sku:SKU001'
+const filterLabel = () => !filter ? '' : FILTERS[filter] ? FILTERS[filter][0] : filter.startsWith('action:') ? LABEL[filter.slice(7)] : short(D.recs.find((r) => r.sku_id === filter.slice(4)).name);
+const filterFn = (r) => !filter || (FILTERS[filter] ? FILTERS[filter][1](r) : filter.startsWith('action:') ? r.action === filter.slice(7) : r.sku_id === filter.slice(4));
+const matches = (r) => filterFn(r) && (!query || (r.sku_id + ' ' + r.name + ' ' + r.distributor + ' ' + r.category).toLowerCase().includes(query));
 
 /* ---------- small svg helpers ---------- */
 const spark = (vals, color) => {
@@ -210,12 +227,12 @@ const ICON = {
 
 /* ---------- KPI cards ---------- */
 function kpis() {
-  const card = (lab, ico, tone, val, badge, foot) => '<div class="card kpi"><div class="lab">' + lab + '<span class="ico-b ' + tone + '">' + ico + '</span></div><div class="val">' + val + badge + '</div><div class="foot">' + foot + '</div></div>';
+  const card = (target, lab, ico, tone, val, badge, foot, cta) => '<div class="card kpi click" role="button" tabindex="0" ' + target + ' aria-label="' + lab + ': ' + cta + '"><div class="lab">' + lab + '<span class="ico-b ' + tone + '">' + ico + '</span></div><div class="val">' + val + badge + '</div><div class="foot">' + foot + '</div><div class="go">' + cta + ' →</div></div>';
   $('kpis').innerHTML =
-    card('Stockout risk', ICON.alert, 'b-r', risk, '<span class="badge b-r">' + Math.round((risk / D.recs.length) * 100) + '% of SKUs</span>', 'below minimum weeks of cover') +
-    card('Overstock risk', ICON.stack, 'b-b', over, '<span class="badge b-b">' + Math.round((over / D.recs.length) * 100) + '% of SKUs</span>', 'above maximum cover, pause ordering') +
-    card('Units to order', ICON.box, 'b-v', fmt(unitsToOrder), '<span class="badge b-n">' + (count('REORDER_NOW') + count('REORDER_HIGH_DEMAND')) + ' SKUs</span>', 'before planner overrides') +
-    card('Sales, last 4 weeks', ICON.trend, 'b-g', fmt(last4), delta(salesDelta), 'vs ' + fmt(prev4) + ' in the 4 weeks before');
+    card('data-filter="stockout"', 'Stockout risk', ICON.alert, 'b-r', risk, '<span class="badge b-r">' + Math.round((risk / D.recs.length) * 100) + '% of SKUs</span>', 'below minimum weeks of cover', 'See these SKUs') +
+    card('data-filter="overstock"', 'Overstock risk', ICON.stack, 'b-b', over, '<span class="badge b-b">' + Math.round((over / D.recs.length) * 100) + '% of SKUs</span>', 'above maximum cover, pause ordering', 'See these SKUs') +
+    card('data-filter="order"', 'Units to order', ICON.box, 'b-v', fmt(unitsToOrder), '<span class="badge b-n">' + (count('REORDER_NOW') + count('REORDER_HIGH_DEMAND')) + ' SKUs</span>', 'before planner overrides', 'See the orders') +
+    card('data-go="sales"', 'Sales, last 4 weeks', ICON.trend, 'b-g', fmt(last4), delta(salesDelta), 'vs ' + fmt(prev4) + ' in the 4 weeks before', 'View sales trend');
 }
 
 /* ---------- charts ---------- */
@@ -241,7 +258,7 @@ function donut() {
   let off = 0, s = '<svg viewBox="0 0 150 150" width="150" style="display:block;margin:12px auto 4px"><circle cx="75" cy="75" r="' + R + '" fill="none" stroke="var(--soft)" stroke-width="16"/>';
   order.forEach((a) => { const c = count(a); if (!c) return; const len = (c / total) * C; s += '<circle cx="75" cy="75" r="' + R + '" fill="none" stroke="' + COLOR[a] + '" stroke-width="16" stroke-dasharray="' + Math.max(len - 2, 0) + ' ' + C + '" stroke-dashoffset="' + -off + '" transform="rotate(-90 75 75)"><title>' + LABEL[a] + ': ' + c + '</title></circle>'; off += len; });
   s += '<text x="75" y="76" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ink)">' + total + '</text><text x="75" y="92" text-anchor="middle">SKUs</text></svg>';
-  s += '<div style="display:flex;flex-direction:column;gap:7px;margin-top:8px">' + order.map((a) => '<div style="display:flex;align-items:center;gap:8px"><i style="width:9px;height:9px;border-radius:3px;background:' + COLOR[a] + (a === 'NO_ACTION' ? ';border:1px solid var(--mute)' : '') + '"></i>' + LABEL[a] + '<b style="margin-left:auto">' + count(a) + '</b></div>').join('') + '</div>';
+  s += '<div style="display:flex;flex-direction:column;gap:7px;margin-top:8px">' + order.map((a) => '<div class="legrow click" role="button" tabindex="0" data-filter="action:' + a + '" style="display:flex;align-items:center;gap:8px"><i style="width:9px;height:9px;border-radius:3px;background:' + COLOR[a] + (a === 'NO_ACTION' ? ';border:1px solid var(--mute)' : '') + '"></i>' + LABEL[a] + '<b style="margin-left:auto">' + count(a) + '</b></div>').join('') + '</div>';
   $('donut').innerHTML = s;
 }
 
@@ -286,12 +303,13 @@ function insights() {
 function movers() {
   const rows = D.recs.slice().sort((a, b) => (b.spike_pct || 0) - (a.spike_pct || 0)).slice(0, 7);
   $('movers').innerHTML = '<thead><tr><th>SKU</th><th>Trend</th><th class="n">Avg / week</th><th class="n">Last 4w</th><th class="n">Change</th><th class="n">Cover</th><th>Action</th></tr></thead><tbody>' + rows.map((r) =>
-    '<tr><td><div class="sku"><div class="dot">' + r.sku_id.slice(-3) + '</div><div><b>' + esc(short(r.name)) + '</b><span>' + esc(r.distributor) + '</span></div></div></td><td>' + spark(D.sales[r.sku_id] || [], (r.spike_pct || 0) >= 0 ? 'var(--green)' : 'var(--red)') + '</td><td class="n">' + fmt(r.avg_weekly_12w) + '</td><td class="n">' + fmt(r.recent_avg_4w) + '</td><td class="n">' + delta(r.spike_pct || 0) + '</td><td class="n">' + r.cover_weeks + 'w</td><td><span class="tag t-' + r.action + '">' + LABEL[r.action] + '</span></td></tr>').join('') + '</tbody>';
+    '<tr class="click" role="button" tabindex="0" data-filter="sku:' + r.sku_id + '"><td><div class="sku"><div class="dot">' + r.sku_id.slice(-3) + '</div><div><b>' + esc(short(r.name)) + '</b><span>' + esc(r.distributor) + '</span></div></div></td><td>' + spark(D.sales[r.sku_id] || [], (r.spike_pct || 0) >= 0 ? 'var(--green)' : 'var(--red)') + '</td><td class="n">' + fmt(r.avg_weekly_12w) + '</td><td class="n">' + fmt(r.recent_avg_4w) + '</td><td class="n">' + delta(r.spike_pct || 0) + '</td><td class="n">' + r.cover_weeks + 'w</td><td><span class="tag t-' + r.action + '">' + LABEL[r.action] + '</span></td></tr>').join('') + '</tbody>';
 }
 
 /* ---------- recommendations table with decisions ---------- */
 function recs() {
   const rows = D.recs.filter(matches);
+  $('fchip').classList.toggle('on', !!filter); $('flabel').textContent = 'Filter: ' + filterLabel();
   $('cnt-recs').textContent = actionable.length;
   $('decProg').textContent = decided() + ' of ' + actionable.length + ' actionable SKUs decided';
   $('decBar').style.width = (actionable.length ? (decided() / actionable.length) * 100 : 0) + '%';
@@ -334,10 +352,28 @@ function bt() {
 
 /* ---------- wiring ---------- */
 function render() { recs(); po(); }
+function show(view) {
+  document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === 'v-' + view));
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.v === view));
+  window.scrollTo({ top: 0 });
+}
+// Clickable cards: KPI cards, donut legend rows and mover rows open Recommendations pre-filtered.
+function activate(el) {
+  if (el.dataset.go === 'sales') { $('salesChart').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  filter = el.dataset.filter; query = ''; $('q').value = '';
+  show('recs'); recs();
+}
+document.addEventListener('keydown', (e) => {
+  const el = e.target.closest?.('[role=button][data-filter],[role=button][data-go]');
+  if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); activate(el); }
+});
 document.addEventListener('click', (e) => {
+  const card = e.target.closest('[role=button][data-filter],[role=button][data-go]');
+  if (card) { activate(card); return; }
   const t = e.target.closest('button'); if (!t) return;
   const d = t.dataset;
-  if (d.v) { document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === 'v-' + d.v)); document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b === t)); window.scrollTo({ top: 0 }); return; }
+  if (d.clear !== undefined) { filter = null; recs(); return; }
+  if (d.v) { show(d.v); return; }
   if (d.acc) { dec[d.acc] = { status: 'accepted', at: new Date().toISOString() }; push(d.acc); }
   else if (d.undo) { delete dec[d.undo]; push(d.undo); }
   else if (d.ovr) {
